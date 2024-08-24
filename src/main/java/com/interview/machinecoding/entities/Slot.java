@@ -25,4 +25,5 @@ public class Slot {
     private List<User> users;
     private Center center;
     private List<Booking> bookings;
+    List<Slot> slots;
 }

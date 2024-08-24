@@ -19,4 +19,5 @@ public class Center {
     private String city;
     private Location location;
     List<Workout> workouts;
+    List<Slot> slots;
 }

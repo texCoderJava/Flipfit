@@ -5,6 +5,8 @@ import com.interview.machinecoding.business.UserService;
 import com.interview.machinecoding.entities.Slot;
 import com.interview.machinecoding.entities.User;
 
+import java.util.ArrayList;
+
 public class VIPBookingStrategy implements BookingStrategy {
 
     private UserService userService;
@@ -18,6 +20,7 @@ public class VIPBookingStrategy implements BookingStrategy {
     @Override
     public boolean bookSlot(User user, Slot slot) {
         if (slot.getAvailableSeats() > 0) {
+            slot.setUsers(new ArrayList<>(slot.getUsers()));
             slot.getUsers().add(user);
             slot.setAvailableSeats(slot.getAvailableSeats() - 1);
             user.getSlots().add(slot);

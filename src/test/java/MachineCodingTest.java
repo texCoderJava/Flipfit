@@ -23,6 +23,7 @@ import com.interview.machinecoding.dao.UserDao;
 import com.interview.machinecoding.dao.UserDaoImpl;
 import com.interview.machinecoding.dao.WorkoutDao;
 import com.interview.machinecoding.dao.WorkoutDaoImpl;
+import com.interview.machinecoding.entities.Booking;
 import com.interview.machinecoding.entities.Center;
 import com.interview.machinecoding.entities.Slot;
 import com.interview.machinecoding.entities.User;
@@ -181,5 +182,75 @@ public class MachineCodingTest {
         Assertions.assertEquals(1,slotByWorkoutMapWithVip.get("Yoga").size());
         Assertions.assertEquals(1,slotByWorkoutMapWithVip.get("Weights").size());
         Assertions.assertEquals(1,slotByWorkoutMapWithVip.get("Cardio").size());
+    }
+
+    @Test
+    public void bookSlotByCenter(){
+        User samUser = this.userService.registerUser("Sam", UserType.NORMAL);
+        User tomUser = this.userService.registerUser("Tom", UserType.VIP);
+
+
+        this.centerService.addCenter("Koramangla","Bangalore", LocationUtil.generateRandomLocation());
+        this.workoutService.addNewWorkOut("Yoga");
+        this.workoutService.addNewWorkOut("Weights");
+        this.workoutService.addNewWorkOut("Cardio");
+
+        this.centerWorkoutService.addWorkoutToCenter("Koramangla","Yoga");
+        this.centerWorkoutService.addWorkoutToCenter("Koramangla","Weights");
+        this.centerWorkoutService.addWorkoutToCenter("Koramangla","Cardio");
+
+        Slot yogaSlot = this.slotService.addSlot("Koramangla","Yoga", LocalTime.now(),5,false );
+        Slot weightsSlot = this.slotService.addSlot("Koramangla","Weights", LocalTime.now(),5,false );
+        Slot cardioSlot = this.slotService.addSlot("Koramangla","Cardio", LocalTime.now(),5,true );
+
+        boolean isSlotBookedForSam = this.bookingService.bookSlot(samUser.getUserId(),yogaSlot.getSlotId(),"Yoga","Koramangla");
+
+        Assertions.assertTrue(isSlotBookedForSam);
+
+        boolean isSlotBookedForTom = this.bookingService.bookSlot(tomUser.getUserId(),cardioSlot.getSlotId(),"Cardio","Koramangla");
+
+        Assertions.assertTrue(isSlotBookedForTom);
+
+        boolean isSlotBookedForTomForWeights = this.bookingService.bookSlot(tomUser.getUserId(),weightsSlot.getSlotId(),"Weights","Koramangla");
+
+        Assertions.assertTrue(isSlotBookedForTomForWeights);
+    }
+
+    @Test
+    public void testCancelBookingWithVipUserAssignment(){
+        User samUser = this.userService.registerUser("Sam", UserType.NORMAL);
+        User tomUser = this.userService.registerUser("Tom", UserType.VIP);
+        User kitUser = this.userService.registerUser("kit", UserType.VIP);
+
+
+        this.centerService.addCenter("Koramangla","Bangalore", LocationUtil.generateRandomLocation());
+        this.workoutService.addNewWorkOut("Yoga");
+        this.workoutService.addNewWorkOut("Weights");
+        this.workoutService.addNewWorkOut("Cardio");
+
+        this.centerWorkoutService.addWorkoutToCenter("Koramangla","Yoga");
+        this.centerWorkoutService.addWorkoutToCenter("Koramangla","Weights");
+        this.centerWorkoutService.addWorkoutToCenter("Koramangla","Cardio");
+
+        Slot yogaSlot = this.slotService.addSlot("Koramangla","Yoga", LocalTime.now(),2,false );
+
+        boolean isSlotBookedForSam = this.bookingService.bookSlot(samUser.getUserId(),yogaSlot.getSlotId(),"Yoga","Koramangla");
+
+        Assertions.assertTrue(isSlotBookedForSam);
+
+        boolean isSlotBookedForTom = this.bookingService.bookSlot(tomUser.getUserId(),yogaSlot.getSlotId(),"Yoga","Koramangla");
+
+        Assertions.assertTrue(isSlotBookedForTom);
+
+        boolean isSlotBookedForKit = this.bookingService.bookSlot(kitUser.getUserId(),yogaSlot.getSlotId(),"Yoga","Koramangla");
+
+        Assertions.assertFalse(isSlotBookedForKit);
+
+        this.bookingService.cancelBooking(tomUser.getUserId(),yogaSlot.getSlotId(),"Koramangla");
+
+        List< Booking> bookings = this.userService.getUserById(kitUser.getUserId()).getBookings();
+
+        Assertions.assertEquals(1, bookings.size());
+
     }
 }

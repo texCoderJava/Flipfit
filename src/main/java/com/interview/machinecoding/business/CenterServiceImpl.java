@@ -27,6 +27,7 @@ public class CenterServiceImpl implements CenterService {
                 .id(UUID.randomUUID().toString())
                 .name(center)
                 .city(city)
+                .slots(new ArrayList<>())
                 .location(location)
                 .workouts(new ArrayList<>())
                 .build();

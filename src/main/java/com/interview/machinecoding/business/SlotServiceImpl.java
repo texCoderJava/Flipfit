@@ -47,10 +47,15 @@ public class SlotServiceImpl implements SlotService {
                     .endTime(startTime.plusHours(1))
                     .availableSeats(availableSeats)
                     .isVipOnly(isVip)
+                    .center(center)
+                    .users(new ArrayList<>())
                     .workouts(workouts)
                     .build();
 
             currWorkout.getSlots().add(slot);
+            this.slotDAO.addSlot(slot);
+            center.getSlots().add(slot);
+            this.centerService.updateCenter(center);
             this.workoutService.updateWorkout(currWorkout);
             return slot;
         }).orElseThrow(() -> new FlipFitApplicationException("No existing workout with name " + workout + ". Add the workout first"));

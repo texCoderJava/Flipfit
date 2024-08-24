@@ -25,6 +25,8 @@ public class UserServiceImpl implements UserService {
                 .userId(UUID.randomUUID().toString())
                 .name(name)
                 .userType(userType)
+                .bookings(new ArrayList<>())
+                .slots(new ArrayList<>())
                 .build();
         return this.userDAO.addUser(user);
     }

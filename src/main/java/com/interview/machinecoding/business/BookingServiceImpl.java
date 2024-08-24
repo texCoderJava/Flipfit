@@ -45,16 +45,18 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public boolean bookSlot(String userId, String slotId, String centerArea) {
-        User user = userService.getUserById(userId);
-        Slot slot = slotService.getSlotById(slotId);
+    public boolean bookSlot(String userId, String slotId,String workout, String centerArea) {
+        User user = this.userService.getUserById(userId);
+        Slot slot = this.centerService.getCenterByArea(centerArea).getWorkouts().stream()
+                .filter(currworkout -> currworkout.getWorkoutName().equals(workout))
+                .findFirst()
+                .flatMap(currworkout -> currworkout.getSlots().stream()
+                        .filter(currslot -> currslot.getSlotId().equals(slotId))
+                        .findFirst())
+                .orElse(null);
+
         Center center = this.centerService.getCenterByArea(centerArea);
         if (user == null || slot == null) {
-            return false;
-        }
-
-        if (!slot.getCenter().getName().equals(centerArea)) {
-            System.out.println("Slot does not belong to the given center.");
             return false;
         }
 
@@ -113,6 +115,7 @@ public class BookingServiceImpl implements BookingService {
 
             slot.setUsers(users);
             user.setSlots(slots);
+            slot.setAvailableSeats(slot.getAvailableSeats() + 1);
 
             this.slotService.updateSlot(slot);
             this.userService.updateUser(user);
