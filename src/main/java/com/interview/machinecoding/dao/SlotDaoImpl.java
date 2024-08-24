@@ -11,7 +11,8 @@ public class SlotDaoImpl implements SlotDao{
     Map<String,Slot> slotMap = new ConcurrentHashMap<>();
     @Override
     public Slot addSlot(Slot slot) {
-        return this.slotMap.put(slot.getSlotId(),slot);
+        this.slotMap.put(slot.getSlotId(),slot);
+        return slot;
     }
 
     @Override

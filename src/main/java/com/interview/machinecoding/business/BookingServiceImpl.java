@@ -8,10 +8,12 @@ import com.interview.machinecoding.entities.Booking;
 import com.interview.machinecoding.entities.Center;
 import com.interview.machinecoding.entities.Slot;
 import com.interview.machinecoding.entities.User;
+import com.interview.machinecoding.entities.Workout;
 import com.interview.machinecoding.model.UserType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +29,18 @@ public class BookingServiceImpl implements BookingService {
     private SlotService slotService;
     private UserService userService;
     private CenterService centerService;
+    private BookingStrategy vipBookingStrategy;
+    private BookingStrategy normalBookingStrategy;
     private Map<String, Queue<String>> waitingQueue;
 
-    private BookingServiceImpl(BookingDao bookingDao,SlotService slotService,UserService userService,CenterService centerService) {
+    public BookingServiceImpl(BookingDao bookingDao,SlotService slotService,UserService userService,CenterService centerService,
+                              BookingStrategy vipBookingStrategy,BookingStrategy normalBookingStrategy) {
         this.bookingDao = bookingDao;
         this.slotService = slotService;
         this.userService = userService;
         this.centerService = centerService;
+        this.vipBookingStrategy = vipBookingStrategy;
+        this.normalBookingStrategy = normalBookingStrategy;
         waitingQueue = new ConcurrentHashMap<>();
     }
 
@@ -181,26 +188,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Slot> viewSlots(String centerArea, String userId) {
+    public Map<String,List<Slot>> viewSlots(String centerArea, String userId) {
         User user = this.userService.getUserById(userId);
-        List<Slot> slots = this.centerService.getCenterByArea(centerArea).getSlots();
+        Map<String, List<Slot>> slotsByWorkoutName = new HashMap<>();
+        Center center = this.centerService.getCenterByArea(centerArea);
+            for (Workout workout : center.getWorkouts()) {
+                String workoutName = workout.getWorkoutName();
 
-        if (user == null || slots == null) {
-            return new ArrayList<>();
-        }
+                List<Slot> slotsList = slotsByWorkoutName.computeIfAbsent(workoutName, k -> new ArrayList<>());
 
-        if (user.getUserType() == UserType.VIP) {
-            return slots;
-        } else {
-            return slots.stream().filter(slot -> !slot.isVipOnly()).collect(Collectors.toList());
-        }
+                if(user.getUserType() == UserType.VIP){
+                    slotsList.addAll(workout.getSlots());
+                } else {
+                    slotsList.addAll(workout.getSlots().stream().filter(slot -> !slot.isVipOnly()).toList());
+                }
+            }
+
+            return slotsByWorkoutName;
     }
 
     private BookingStrategy getBookingStrategy(UserType userType) {
         if (userType == UserType.VIP) {
-            return new VIPBookingStrategy(userService,slotService);
+            return this.vipBookingStrategy;
         } else {
-            return new NormalUserBookingStrategy(userService,slotService);
+            return this.normalBookingStrategy;
         }
     }
 

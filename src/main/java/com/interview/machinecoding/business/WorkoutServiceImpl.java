@@ -1,7 +1,6 @@
 package com.interview.machinecoding.business;
 
 import com.interview.machinecoding.dao.WorkoutDao;
-import com.interview.machinecoding.entities.Center;
 import com.interview.machinecoding.entities.Workout;
 
 import java.util.ArrayList;
@@ -11,21 +10,18 @@ import java.util.UUID;
 public class WorkoutServiceImpl implements WorkoutService{
 
     private WorkoutDao workoutDao;
-    private CenterService centerService;
 
-    public WorkoutServiceImpl(WorkoutDao workoutDao,CenterService centerService){
+    public WorkoutServiceImpl(WorkoutDao workoutDao){
         this.workoutDao = workoutDao;
-        this.centerService = centerService;
     }
 
     @Override
-    public Workout addWorkout(String centerName,String workoutName) {
-        List<Center> centers = new ArrayList<>();
-        centers.add(this.centerService.getCenterByArea(centerName));
+    public Workout addNewWorkOut(String workoutName) {
         Workout workout = Workout.builder()
                 .workoutId(UUID.randomUUID().toString())
                 .workoutName(workoutName)
-                .centers(centers)
+                .slots(new ArrayList<>())
+                .centers(new ArrayList<>())
                 .build();
         return this.workoutDao.addWorkout(workout);
     }
@@ -33,6 +29,11 @@ public class WorkoutServiceImpl implements WorkoutService{
     @Override
     public Workout getWorkOutByName(String workoutName) {
         return this.workoutDao.getWorkoutByName(workoutName);
+    }
+
+    @Override
+    public void updateWorkout(Workout workout) {
+        this.workoutDao.updateWorkout(workout);
     }
 
     @Override

@@ -6,8 +6,10 @@ import java.util.List;
 
 public interface WorkoutService {
 
-    Workout addWorkout(String centerName,String workoutName);
+    Workout addNewWorkOut(String workoutName);
     Workout getWorkOutByName(String workoutName);
+
+    void updateWorkout(Workout workout);
 
     List<Workout> getAllWorkOut();
 }

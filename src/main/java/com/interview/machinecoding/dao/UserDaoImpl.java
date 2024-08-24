@@ -11,7 +11,8 @@ public class UserDaoImpl implements UserDao{
     private Map<String, User> usersMap = new ConcurrentHashMap<>();
 
     public User addUser(User user) {
-        return this.usersMap.put(user.getUserId(), user);
+        this.usersMap.put(user.getUserId(),user);
+        return user;
     }
 
     public User getUserById(String userId) {

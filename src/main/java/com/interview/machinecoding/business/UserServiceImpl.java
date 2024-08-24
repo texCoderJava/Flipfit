@@ -3,23 +3,30 @@ package com.interview.machinecoding.business;
 import com.interview.machinecoding.dao.UserDao;
 import com.interview.machinecoding.entities.Booking;
 import com.interview.machinecoding.entities.User;
+import com.interview.machinecoding.model.UserType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class UserServiceImpl implements UserService {
     private UserDao userDAO;
 
-    private UserServiceImpl(UserDao userDAO) {
+    public UserServiceImpl(UserDao userDAO) {
         this.userDAO = userDAO;
     }
 
 
     @Override
-    public void registerUser(User user) {
-        this.userDAO.addUser(user);
+    public User registerUser(String name, UserType userType) {
+        User user = User.builder()
+                .userId(UUID.randomUUID().toString())
+                .name(name)
+                .userType(userType)
+                .build();
+        return this.userDAO.addUser(user);
     }
 
     @Override

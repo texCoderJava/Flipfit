@@ -7,6 +7,8 @@ import java.util.List;
 public interface WorkoutDao {
 
     Workout addWorkout(Workout workout);
-     Workout getWorkoutByName(String name);
+    Workout getWorkoutByName(String name);
+
+    void updateWorkout(Workout workout);
     List<Workout> getAllWorkouts();
 }

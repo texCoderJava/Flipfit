@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -16,5 +15,6 @@ public class Workout {
 
     private String workoutId;
     private String workoutName;
-    private List<Center> centers = new ArrayList<>();
+    private List<Center> centers;
+    private List<Slot> slots;
 }
